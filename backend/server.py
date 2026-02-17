@@ -1,11 +1,11 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List
 import uuid
 from datetime import datetime, timezone
@@ -27,6 +27,26 @@ api_router = APIRouter(prefix="/api")
 
 
 # Define Models
+class UserType(BaseModel):
+    louer: bool = False
+    proposer: bool = False
+
+class WaitlistEntry(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    prenom: str
+    email: EmailStr
+    ville: str
+    userType: UserType
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class WaitlistCreate(BaseModel):
+    prenom: str
+    email: EmailStr
+    ville: str
+    userType: UserType
+
 class StatusCheck(BaseModel):
     model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
     
@@ -40,7 +60,60 @@ class StatusCheckCreate(BaseModel):
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "ShareMatos API is running"}
+
+@api_router.post("/waitlist", response_model=WaitlistEntry)
+async def create_waitlist_entry(input: WaitlistCreate):
+    """Create a new waitlist entry"""
+    try:
+        # Check if email already exists
+        existing_entry = await db.waitlist.find_one({"email": input.email})
+        if existing_entry:
+            raise HTTPException(status_code=400, detail="Cet email est déjà inscrit")
+        
+        # Create waitlist entry
+        entry_dict = input.model_dump()
+        entry_obj = WaitlistEntry(**entry_dict)
+        
+        # Convert to dict and serialize for MongoDB
+        doc = entry_obj.model_dump()
+        doc['timestamp'] = doc['timestamp'].isoformat()
+        doc['userType'] = dict(doc['userType'])
+        
+        await db.waitlist.insert_one(doc)
+        
+        return entry_obj
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating waitlist entry: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de l'inscription")
+
+@api_router.get("/waitlist", response_model=List[WaitlistEntry])
+async def get_waitlist_entries():
+    """Get all waitlist entries"""
+    try:
+        entries = await db.waitlist.find({}, {"_id": 0}).to_list(1000)
+        
+        # Convert ISO string timestamps back to datetime objects
+        for entry in entries:
+            if isinstance(entry['timestamp'], str):
+                entry['timestamp'] = datetime.fromisoformat(entry['timestamp'])
+        
+        return entries
+    except Exception as e:
+        logging.error(f"Error fetching waitlist entries: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de la récupération des données")
+
+@api_router.get("/waitlist/count")
+async def get_waitlist_count():
+    """Get total count of waitlist entries"""
+    try:
+        count = await db.waitlist.count_documents({})
+        return {"count": count}
+    except Exception as e:
+        logging.error(f"Error counting waitlist entries: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors du comptage")
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
