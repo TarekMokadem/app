@@ -1,0 +1,70 @@
+{
+  "summary": {
+    "total_tests": 10,
+    "passed_tests": 10,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  },
+  "detailed_results": [
+    {
+      "name": "API Root Endpoint",
+      "success": true,
+      "details": "Status: 200, Response: ShareMatos API is running",
+      "timestamp": "2026-02-17T15:22:00.813032"
+    },
+    {
+      "name": "Create Waitlist Entry - Marc",
+      "success": true,
+      "details": "Status: 200, ID: 7ccafd7b-4c26-4649-b4b8-789a24d022c8",
+      "timestamp": "2026-02-17T15:22:00.992454"
+    },
+    {
+      "name": "Create Waitlist Entry - Sophie",
+      "success": true,
+      "details": "Status: 200, ID: 9929b553-bae8-43fb-b04b-2d4c6de347fe",
+      "timestamp": "2026-02-17T15:22:01.229611"
+    },
+    {
+      "name": "Create Waitlist Entry - Pierre",
+      "success": true,
+      "details": "Status: 200, ID: 890d9ef1-c1ab-4304-8264-445233e1e8e4",
+      "timestamp": "2026-02-17T15:22:01.411258"
+    },
+    {
+      "name": "Duplicate Email Detection",
+      "success": true,
+      "details": "Status: 400 - Correctly rejected duplicate email",
+      "timestamp": "2026-02-17T15:22:01.555993"
+    },
+    {
+      "name": "Get Waitlist Entries",
+      "success": true,
+      "details": "Status: 200, Found 3 entries",
+      "timestamp": "2026-02-17T15:22:01.740630"
+    },
+    {
+      "name": "Get Waitlist Count",
+      "success": true,
+      "details": "Status: 200, Count: 3",
+      "timestamp": "2026-02-17T15:22:01.872548"
+    },
+    {
+      "name": "Invalid Data - Missing required fields",
+      "success": true,
+      "details": "Status: 422, Expected: 422",
+      "timestamp": "2026-02-17T15:22:02.046264"
+    },
+    {
+      "name": "Invalid Data - Invalid email format",
+      "success": true,
+      "details": "Status: 422, Expected: 422",
+      "timestamp": "2026-02-17T15:22:02.246481"
+    },
+    {
+      "name": "Invalid Data - Empty userType",
+      "success": true,
+      "details": "Status: 200, Expected: 200",
+      "timestamp": "2026-02-17T15:22:02.477540"
+    }
+  ]
+}
