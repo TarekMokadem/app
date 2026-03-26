@@ -19,8 +19,16 @@ service cloud.firestore {
         && request.resource.data.userType.proposer is bool
         && (request.resource.data.userType.louer == true
           || request.resource.data.userType.proposer == true);
-      allow get: if true;
-      allow list: if false;
+      allow read: if false;
+      allow update, delete: if false;
+    }
+
+    match /waitlist_index/{entryId} {
+      allow create: if !exists(/databases/$(database)/documents/waitlist_index/$(entryId))
+        && request.resource.data.keys().hasOnly(['v'])
+        && request.resource.data.v is int
+        && request.resource.data.v == 1;
+      allow read: if true;
       allow update, delete: if false;
     }
   }

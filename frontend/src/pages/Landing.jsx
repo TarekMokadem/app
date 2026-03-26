@@ -413,7 +413,7 @@ const Landing = () => {
               {!waitlistCountReady
                 ? 'Chargement...'
                 : waitlistCount === null && isFirebaseWaitlistEnabled()
-                  ? 'Rejoignez les premiers inscrits. Si le compteur ne s’affiche pas, vérifiez les règles Firestore (agrégation count).'
+                  ? 'Rejoignez les premiers inscrits — connexion ou configuration à vérifier.'
                   : waitlistCount === 0
                     ? 'Soyez parmi les premiers à rejoindre ShareMatos !'
                     : 'Personnes déjà intéressées par ShareMatos'}

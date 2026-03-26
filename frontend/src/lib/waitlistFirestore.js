@@ -7,6 +7,11 @@ import {
 } from 'firebase/firestore';
 import { getFirestoreDb } from './firebase';
 
+/** Données complètes (prénom, email, etc.) — pas de lecture client. */
+const COLLECTION_WAITLIST = 'waitlist';
+/** Un document minimal par inscription — utilisé uniquement pour le comptage public. */
+const COLLECTION_WAITLIST_INDEX = 'waitlist_index';
+
 async function emailToDocId(email) {
   const normalized = email.trim().toLowerCase();
   const buffer = new TextEncoder().encode(normalized);
@@ -21,7 +26,9 @@ export async function fetchWaitlistCountFromFirestore() {
     return null;
   }
   try {
-    const snapshot = await getCountFromServer(collection(db, 'waitlist'));
+    const snapshot = await getCountFromServer(
+      collection(db, COLLECTION_WAITLIST_INDEX)
+    );
     return snapshot.data().count;
   } catch {
     return null;
@@ -35,16 +42,17 @@ export async function submitWaitlistToFirestore(formData) {
   }
 
   const docId = await emailToDocId(formData.email);
-  const ref = doc(db, 'waitlist', docId);
+  const privateRef = doc(db, COLLECTION_WAITLIST, docId);
+  const indexRef = doc(db, COLLECTION_WAITLIST_INDEX, docId);
 
   await runTransaction(db, async (transaction) => {
-    const snap = await transaction.get(ref);
+    const snap = await transaction.get(privateRef);
     if (snap.exists()) {
       const err = new Error('duplicate-email');
       err.code = 'duplicate-email';
       throw err;
     }
-    transaction.set(ref, {
+    transaction.set(privateRef, {
       prenom: formData.prenom.trim(),
       email: formData.email.trim().toLowerCase(),
       ville: formData.ville.trim(),
@@ -54,5 +62,6 @@ export async function submitWaitlistToFirestore(formData) {
       },
       createdAt: serverTimestamp(),
     });
+    transaction.set(indexRef, { v: 1 });
   });
 }
