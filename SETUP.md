@@ -10,7 +10,7 @@ Les pages **Mentions légales**, **CGU** et **Politique de confidentialité** co
 
 ### Mentions légales (`/mentions-legales`)
 - **Éditeur du site** : Raison sociale, forme juridique, capital social, siège social, numéro SIRET
-- **Hébergeur** : Nom, adresse et coordonnées de votre hébergeur (ex. Emergent, OVH, etc.)
+- **Hébergeur** : Nom, adresse et coordonnées de votre hébergeur (ex. OVH, Cloudflare, etc.)
 - **Directeur de la publication** : Nom du responsable
 
 ### CGU (`/cgu`)
