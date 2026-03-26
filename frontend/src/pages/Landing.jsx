@@ -396,7 +396,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Social Proof */}
+      {/* Attentes (projet en lancement — pas encore de retours d’usage réels) */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -419,6 +419,13 @@ const Landing = () => {
                     : 'Personnes déjà intéressées par ShareMatos'}
             </p>
           </div>
+
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-3">
+            Pourquoi ils sont intéressés
+          </h3>
+          <p className="text-center text-gray-500 mb-10 max-w-2xl mx-auto text-sm sm:text-base">
+            La plateforme n&apos;existe pas encore : ce sont des voix de la liste d&apos;attente qui expliquent ce qu&apos;elles attendent du projet.
+          </p>
           
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <div className="bg-gradient-to-br from-blue-50 to-emerald-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
@@ -434,24 +441,24 @@ const Landing = () => {
                 </div>
               </div>
               <p className="text-gray-700 leading-relaxed italic">
-                "Mes outils dormaient au garage. Maintenant, je gagne 150€ par mois en les prêtant à mes voisins. Une super idée !"
+                &laquo; Mes outils dorment au garage. Ça serait intéressant de gagner un peu d&apos;argent tous les mois en les prêtant à mes voisins. Une super idée ! &raquo;
               </p>
             </div>
             
             <div className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="flex items-start space-x-4 mb-6">
                 <img 
-                  src="https://images.unsplash.com/photo-1589729482945-ca6f3a235f7a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHx8MTc3MTM0MTQxM3ww&ixlib=rb-4.1.0&q=85"
-                  alt="Sophie"
+                  src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=256&q=80"
+                  alt="Antoine, étudiant"
                   className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md"
                 />
                 <div>
-                  <h4 className="font-bold text-lg text-gray-900">Sophie L.</h4>
-                  <p className="text-sm text-gray-600">Locataire, Roubaix</p>
+                  <h4 className="font-bold text-lg text-gray-900">Antoine R.</h4>
+                  <p className="text-sm text-gray-600">Étudiant, Villeneuve-d&apos;Ascq</p>
                 </div>
               </div>
               <p className="text-gray-700 leading-relaxed italic">
-                "J'avais besoin d'une perceuse pour un week-end. Au lieu de dépenser 100€, j'ai payé 10€. Pratique et économique !"
+                &laquo; Je bricole de temps en temps mais je n&apos;ai ni le budget ni la place pour tout acheter. Pouvoir louer une perceuse ou une visseuse près de chez moi, ce serait exactement ce qu&apos;il me faut. &raquo;
               </p>
             </div>
           </div>
