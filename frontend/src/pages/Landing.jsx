@@ -114,11 +114,16 @@ const Landing = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Package className="h-8 w-8 text-emerald-600" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
-              ShareMatos
-            </span>
+          <div className="flex items-center gap-3">
+            <Package className="h-8 w-8 text-emerald-600 shrink-0" />
+            <div className="flex flex-col leading-tight">
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
+                ShareMatos
+              </span>
+              <span className="text-xs sm:text-sm text-gray-500 font-medium">
+                Réveillez l&apos;argent qui dort
+              </span>
+            </div>
           </div>
           <Button 
             variant="outline" 
@@ -143,10 +148,13 @@ const Landing = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-3xl">
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Louez les outils dont vous avez besoin, près de chez vous.
+              Réveillez l&apos;argent qui dort
             </h1>
-            <p className="text-xl sm:text-2xl text-white/90 mb-10 leading-relaxed">
-              Perceuse, tondeuse, matériel de bricolage… Gagnez de l'argent ou économisez en partageant entre voisins.
+            <p className="text-xl sm:text-2xl text-white/95 font-medium mb-4 leading-relaxed">
+              Louez les outils dont vous avez besoin, près de chez vous.
+            </p>
+            <p className="text-lg sm:text-xl text-white/90 mb-10 leading-relaxed">
+              Perceuse, tondeuse, matériel de bricolage… Gagnez de l&apos;argent ou économisez en partageant entre voisins.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
@@ -474,8 +482,11 @@ const Landing = () => {
                 <Package className="h-8 w-8 text-emerald-400" />
                 <span className="text-2xl font-bold">ShareMatos</span>
               </div>
-              <p className="text-gray-400">
-                La plateforme de location d'outils entre voisins
+              <p className="text-emerald-400/90 font-medium mb-1">
+                Réveillez l&apos;argent qui dort
+              </p>
+              <p className="text-gray-400 text-sm">
+                La plateforme de location d&apos;outils entre voisins
               </p>
             </div>
             <div>
