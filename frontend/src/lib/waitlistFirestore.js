@@ -46,8 +46,10 @@ export async function submitWaitlistToFirestore(formData) {
   const indexRef = doc(db, COLLECTION_WAITLIST_INDEX, docId);
 
   await runTransaction(db, async (transaction) => {
-    const snap = await transaction.get(privateRef);
-    if (snap.exists()) {
+    // Doublon : uniquement via waitlist_index (lecture autorisée par les règles).
+    // Ne pas lire waitlist ici : allow read est à false pour protéger les données.
+    const indexSnap = await transaction.get(indexRef);
+    if (indexSnap.exists()) {
       const err = new Error('duplicate-email');
       err.code = 'duplicate-email';
       throw err;
