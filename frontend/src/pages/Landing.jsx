@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Checkbox } from '../components/ui/checkbox';
 import { Search, Handshake, Package, Lock, Users, Sprout, DollarSign, Mail, MapPin, User, ArrowRight, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { isFirebaseWaitlistEnabled } from '../lib/firebase';
+import {
+  fetchWaitlistCountFromFirestore,
+  submitWaitlistToFirestore,
+} from '../lib/waitlistFirestore';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const API = BACKEND_URL ? `${BACKEND_URL}/api` : '';
 
 const Landing = () => {
   const [formData, setFormData] = useState({
@@ -21,6 +27,33 @@ const Landing = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [waitlistCount, setWaitlistCount] = useState(null);
+  const [waitlistCountReady, setWaitlistCountReady] = useState(false);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      if (isFirebaseWaitlistEnabled()) {
+        const n = await fetchWaitlistCountFromFirestore();
+        setWaitlistCount(n);
+        setWaitlistCountReady(true);
+        return;
+      }
+      if (!API) {
+        setWaitlistCount(0);
+        setWaitlistCountReady(true);
+        return;
+      }
+      try {
+        const res = await axios.get(`${API}/waitlist/count`, { timeout: 5000 });
+        setWaitlistCount(res.data?.count ?? 0);
+      } catch {
+        setWaitlistCount(0);
+      } finally {
+        setWaitlistCountReady(true);
+      }
+    };
+    fetchCount();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,9 +70,24 @@ const Landing = () => {
 
     setLoading(true);
     try {
-      await axios.post(`${API}/waitlist`, formData);
+      if (isFirebaseWaitlistEnabled()) {
+        await submitWaitlistToFirestore(formData);
+      } else {
+        if (!API) {
+          toast.error('Configuration serveur manquante.');
+          return;
+        }
+        await axios.post(`${API}/waitlist`, formData);
+      }
       setSubmitted(true);
       toast.success('Merci ! Vous êtes inscrit(e) à la liste d\'attente');
+      if (isFirebaseWaitlistEnabled()) {
+        const n = await fetchWaitlistCountFromFirestore();
+        setWaitlistCount(n);
+      } else {
+        const countRes = await axios.get(`${API}/waitlist/count`);
+        setWaitlistCount(countRes.data?.count ?? 0);
+      }
       setFormData({
         prenom: '',
         email: '',
@@ -47,7 +95,14 @@ const Landing = () => {
         userType: { louer: false, proposer: false }
       });
     } catch (error) {
-      toast.error('Une erreur est survenue. Veuillez réessayer.');
+      if (error.code === 'duplicate-email' || error.message === 'duplicate-email') {
+        toast.error('Cet email est déjà inscrit');
+        return;
+      }
+      const msg = error.response?.data?.detail;
+      const isArray = Array.isArray(msg);
+      const errorMsg = isArray && msg[0]?.msg ? msg[0].msg : (typeof msg === 'string' ? msg : null);
+      toast.error(errorMsg || 'Une erreur est survenue. Veuillez réessayer.');
       console.error('Error submitting form:', error);
     } finally {
       setLoading(false);
@@ -346,10 +401,22 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-              127+
+              {!waitlistCountReady
+                ? '...'
+                : waitlistCount === null && isFirebaseWaitlistEnabled()
+                  ? 'Liste ouverte'
+                  : waitlistCount === 0
+                    ? '0'
+                    : `${waitlistCount}+`}
             </p>
             <p className="text-xl text-gray-600">
-              Personnes déjà intéressées par ShareMatos
+              {!waitlistCountReady
+                ? 'Chargement...'
+                : waitlistCount === null && isFirebaseWaitlistEnabled()
+                  ? 'Rejoignez les premiers inscrits. Si le compteur ne s’affiche pas, vérifiez les règles Firestore (agrégation count).'
+                  : waitlistCount === 0
+                    ? 'Soyez parmi les premiers à rejoindre ShareMatos !'
+                    : 'Personnes déjà intéressées par ShareMatos'}
             </p>
           </div>
           
@@ -407,9 +474,9 @@ const Landing = () => {
             <div>
               <h4 className="font-bold mb-4 text-lg">Liens utiles</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors duration-200">Mentions légales</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors duration-200">Politique de confidentialité</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors duration-200">CGU</a></li>
+                <li><Link to="/mentions-legales" className="hover:text-emerald-400 transition-colors duration-200">Mentions légales</Link></li>
+                <li><Link to="/politique-confidentialite" className="hover:text-emerald-400 transition-colors duration-200">Politique de confidentialité</Link></li>
+                <li><Link to="/cgu" className="hover:text-emerald-400 transition-colors duration-200">CGU</Link></li>
               </ul>
             </div>
             <div>
@@ -417,15 +484,15 @@ const Landing = () => {
               <ul className="space-y-2 text-gray-400">
                 <li><a href="mailto:contact@sharematos.fr" className="hover:text-emerald-400 transition-colors duration-200">contact@sharematos.fr</a></li>
                 <li className="flex space-x-4 mt-4">
-                  <a href="#" className="hover:text-emerald-400 transition-colors duration-200">Facebook</a>
-                  <a href="#" className="hover:text-emerald-400 transition-colors duration-200">Instagram</a>
-                  <a href="#" className="hover:text-emerald-400 transition-colors duration-200">LinkedIn</a>
+                  <a href="https://facebook.com/sharematos" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors duration-200">Facebook</a>
+                  <a href="https://instagram.com/sharematos" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors duration-200">Instagram</a>
+                  <a href="https://linkedin.com/company/sharematos" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors duration-200">LinkedIn</a>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-700 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 ShareMatos. Tous droits réservés.</p>
+            <p>&copy; 2025 ShareMatos. Tous droits réservés.</p>
           </div>
         </div>
       </footer>

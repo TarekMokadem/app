@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from pydantic import BaseModel, Field, ConfigDict, EmailStr, model_validator
 from typing import List
 import uuid
 from datetime import datetime, timezone
@@ -46,6 +46,12 @@ class WaitlistCreate(BaseModel):
     email: EmailStr
     ville: str
     userType: UserType
+
+    @model_validator(mode='after')
+    def check_user_type(self):
+        if not self.userType.louer and not self.userType.proposer:
+            raise ValueError("Veuillez sélectionner au moins une option (louer ou proposer)")
+        return self
 
 class StatusCheck(BaseModel):
     model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field

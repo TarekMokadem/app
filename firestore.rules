@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /waitlist/{entryId} {
+      allow create: if !exists(/databases/$(database)/documents/waitlist/$(entryId))
+        && request.resource.data.keys().hasOnly(['prenom', 'email', 'ville', 'userType', 'createdAt'])
+        && request.resource.data.prenom is string
+        && request.resource.data.prenom.size() > 0
+        && request.resource.data.prenom.size() < 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() < 254
+        && request.resource.data.ville is string
+        && request.resource.data.ville.size() > 0
+        && request.resource.data.ville.size() < 120
+        && request.resource.data.userType is map
+        && request.resource.data.userType.keys().hasOnly(['louer', 'proposer'])
+        && request.resource.data.userType.louer is bool
+        && request.resource.data.userType.proposer is bool
+        && (request.resource.data.userType.louer == true
+          || request.resource.data.userType.proposer == true);
+      allow get: if true;
+      allow list: if false;
+      allow update, delete: if false;
+    }
+  }
+}
